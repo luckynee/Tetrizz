@@ -1,11 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Search;
 
 namespace Script
 {
     [CreateAssetMenu(menuName = "Settings/Block Pool Setting")]
     public class BlockPoolSetting : ScriptableObject
     {
+        [SearchContext("t:prefab",SearchViewFlags.GridView | SearchViewFlags.Centered)]
         public GameObject prefabs;
         public BlockType blockType;
 

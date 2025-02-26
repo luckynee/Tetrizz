@@ -6,9 +6,7 @@ namespace Script
 {
     public class Spawner : MonoBehaviour
     {
-       [SerializeField] private GameObject[] blockPrefabs;
-
-       [SerializeField] private BlockPoolSetting test;
+       [SerializeField] private BlockPoolSetting[] blockPool;
        
        private EventBindings<OnDoneCheckingRow> _onDoneCheckingRow;
 
@@ -41,9 +39,8 @@ namespace Script
                return; // Stop spawning blocks
            }
 
-           var go = BlockFactory.Spawn(test);
+           var go = BlockFactory.Spawn(blockPool[Random.Range(0, blockPool.Length)]); //TODO -> Make It into command pattern
            go.transform.position = transform.position;
-           //Instantiate(blockPrefabs[Random.Range(0, blockPrefabs.Length)], transform.position, Quaternion.identity);
        }
 
     }

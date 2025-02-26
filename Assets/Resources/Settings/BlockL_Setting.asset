@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eccfec076858e034b934dbda115644b2, type: 3}
-  m_Name: BlockL_Settings
+  m_Name: BlockL_Setting
   m_EditorClassIdentifier: 
-  prefabs: {fileID: 6742675572549540161, guid: 6851c0ce9b20ade40a8a101befe85fa0, type: 3}
-  blockType: 0
+  prefabs: {fileID: 2757443769247177246, guid: ea995f2d375a3884894b3b7b384f569e, type: 3}
+  blockType: 2

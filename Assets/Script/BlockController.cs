@@ -109,7 +109,7 @@ namespace Script
         private void MoveBlockDown(bool speedUp = false)
         {
             var fallSpeed = speedUp ? fallTime / 10 : fallTime;
-            
+    
             if (Time.time - _previousFallTime < fallSpeed) return; // Ensure enough time has passed
 
             // Check if moving down is allowed before applying movement
@@ -124,7 +124,9 @@ namespace Script
             }
             else
             {
-                //Wait for certain times before lock block in place
+                if (_hasDropped) return; // Prevent double triggering
+
+                // Wait for certain times before lock block in place
                 _lockCoroutine ??= StartCoroutine(LockBlockAfterDelay());
             }
         }
@@ -142,6 +144,13 @@ namespace Script
             if (_hasDropped) return;  // Prevent multiple executions
             _hasDropped = true;
 
+            // Cancel any ongoing locking coroutine (prevent double event trigger)
+            if (_lockCoroutine != null)
+            {
+                StopCoroutine(_lockCoroutine);
+                _lockCoroutine = null;
+            }
+
             while (GameGrid.Instance.IsInsideGrid(transform, Vector3.down))
             {
                 transform.position += Vector3.down * Speed;
@@ -150,7 +159,6 @@ namespace Script
             Bus<OnBlockReachBottomEvent>.Raise(new OnBlockReachBottomEvent(transform));
             enabled = false; // Disable movement script
         }
-        
         #endregion
 
         

@@ -14,11 +14,11 @@ namespace Script.EventBus
         public OnBlockReachBottomEvent(Transform transform)
         {
             this.transform = transform;
+            Debug.Log("Block Reach Bottom");
         }
     }
 
     public struct OnDoneCheckingRow : IEvent
     {
-        
     }
 }

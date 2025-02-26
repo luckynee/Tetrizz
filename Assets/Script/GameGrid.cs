@@ -19,7 +19,7 @@ namespace Script
 
         private void Awake()
         {
-            if(Instance == null)
+            if(!Instance)
             {
                 Instance = this;
             }
@@ -104,9 +104,6 @@ namespace Script
             {
                 if (_filledGrid[x, y])
                 {
-                    Debug.Log($"Clearing block at {x}, {y}");
-            
-                    // Instead of destroying, disable the child
                     _filledGrid[x, y].gameObject.SetActive(false);
                     _filledGrid[x, y] = null;
                 }
@@ -146,12 +143,26 @@ namespace Script
                 }
             }
         }
+        
+        public bool IsPositionFilled(Vector3 spawnPosition)
+        {
+            var roundX = Mathf.FloorToInt(spawnPosition.x);
+            var roundY = Mathf.FloorToInt(spawnPosition.y);
+
+            if (roundX < 0 || roundX >= width || roundY < 0 || roundY >= height)
+            {
+                return true; // Out of bounds = considered filled
+            }
+
+            return _filledGrid[roundX, roundY] != null; // Returns true if occupied
+        }
+
 
         
         private void OnDrawGizmos()
         {
-            Gizmos.color = Color.green;
-
+            // Draw Grid Lines
+            Gizmos.color = Color.gray;
             for (var x = 0; x <= width; x++)
             {
                 var start = transform.position + new Vector3(x * cellSize, 0, 0);
@@ -165,21 +176,20 @@ namespace Script
                 var end = start + new Vector3(width * cellSize, 0, 0);
                 Gizmos.DrawLine(start, end);
             }
+
+            // Draw Filled Blocks
+            // for (int x = 0; x < width; x++)
+            // {
+            //     for (int y = 0; y < height; y++)
+            //     {
+            //         if (_filledGrid[x, y])
+            //         {
+            //             Gizmos.color = Color.red; // Color for filled blocks
+            //             Vector3 cellCenter = transform.position + new Vector3(x * cellSize + cellSize / 2f, y * cellSize + cellSize / 2f, 0);
+            //             Gizmos.DrawCube(cellCenter, Vector3.one * (cellSize * 1f)); // Draw filled cell
+            //         }
+            //     }
+            // }
         }
-        
-        public bool IsPositionFilled(Vector3 spawnPosition)
-        {
-            int roundX = Mathf.FloorToInt(spawnPosition.x);
-            int roundY = Mathf.FloorToInt(spawnPosition.y);
-
-            if (roundX < 0 || roundX >= width || roundY < 0 || roundY >= height)
-            {
-                return true; // Out of bounds = considered filled
-            }
-
-            return _filledGrid[roundX, roundY] != null; // Returns true if occupied
-        }
-
-        
     }
 }
