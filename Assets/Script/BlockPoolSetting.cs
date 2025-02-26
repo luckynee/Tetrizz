@@ -17,7 +17,10 @@ namespace Script
         {
             var go = Instantiate(prefabs);
             var poolHandler = go.AddComponent<PoolHandler>();
+            var blockController = go.GetComponent<BlockController>();
+            
             poolHandler.blockPoolSetting = this;
+            blockController.poolHandler = poolHandler;
             
             _childPositions = new List<Vector3>();
 

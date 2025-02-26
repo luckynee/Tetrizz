@@ -14,11 +14,19 @@ namespace Script.EventBus
         public OnBlockReachBottomEvent(Transform transform)
         {
             this.transform = transform;
-            Debug.Log("Block Reach Bottom");
         }
     }
 
     public struct OnDoneCheckingRow : IEvent
     {
+    }
+    
+    public struct OnBlockStored : IEvent
+    {
+        public BlockPoolSetting CurrentBlock;
+        public OnBlockStored(BlockPoolSetting currentBlock = null)
+        {
+            this.CurrentBlock = currentBlock;
+        }
     }
 }

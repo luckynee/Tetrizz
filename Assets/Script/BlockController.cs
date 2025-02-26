@@ -12,6 +12,8 @@ namespace Script
         [Header("Rotation Settings")]
         [SerializeField] private Vector2 rotationPoint;
         
+        public PoolHandler poolHandler;
+        
         private const int Speed = 1;
         private const float RotationAngle = 90f;
 
@@ -51,6 +53,11 @@ namespace Script
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 HardDrop();
+            }
+            
+            if(Input.GetKeyDown(KeyCode.C))
+            {
+                StorageManager.Instance.StoreBlock(poolHandler);
             }
 
             MoveBlockDown();
