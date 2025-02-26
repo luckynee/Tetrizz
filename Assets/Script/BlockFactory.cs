@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
-using UnityEngine.Serialization;
 
 namespace Script
 {
@@ -25,7 +23,7 @@ namespace Script
         
         public static BlockFactory Instance;
 
-        private readonly Dictionary<BlockType, IObjectPool<BlockController>> _pools = new();
+        private readonly Dictionary<BlockType, IObjectPool<PoolHandler>> _pools = new();
 
         private void Awake()
         {
@@ -37,16 +35,16 @@ namespace Script
             }
         }
 
-        public static BlockController Spawn(BlockPoolSetting s) => Instance.GetPoolFor(s)?.Get();
-        public static void ReturnToPool(BlockController block) => Instance.GetPoolFor(block.blockPoolSetting)?.Release(block);
+        public static PoolHandler Spawn(BlockPoolSetting s) => Instance.GetPoolFor(s)?.Get();
+        public static void ReturnToPool(PoolHandler block) => Instance.GetPoolFor(block.blockPoolSetting)?.Release(block);
 
-        private IObjectPool<BlockController> GetPoolFor(BlockPoolSetting settings)
+        private IObjectPool<PoolHandler> GetPoolFor(BlockPoolSetting settings)
         {
-            IObjectPool<BlockController> pool;
+            IObjectPool<PoolHandler> pool;
             
             if(_pools.TryGetValue(settings.blockType, out pool)) return pool;
 
-            pool = new ObjectPool<BlockController>(
+            pool = new ObjectPool<PoolHandler>(
                 settings.Create,
                 settings.OnGet,
                 settings.OnRelease,

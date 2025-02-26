@@ -55,8 +55,14 @@ namespace Script
             }
             
             ClearAndMoveRows();
-            
+
+            StartCoroutine(WaitAfterClear());
             Bus<OnDoneCheckingRow>.Raise(new OnDoneCheckingRow());
+        }
+
+        private IEnumerator WaitAfterClear()
+        {
+            yield return new WaitForSeconds(0.1f);
         }
 
         public bool IsInsideGrid(Transform pieceTransform, Vector3 offset)
@@ -84,7 +90,7 @@ namespace Script
         {
             for (var x = 0; x < width; x++)
             {
-                if (_filledGrid[x, y] == null)
+                if (!_filledGrid[x, y])
                 {
                     return false; // Row is not full
                 }
@@ -98,11 +104,15 @@ namespace Script
             {
                 if (_filledGrid[x, y])
                 {
-                    Destroy(_filledGrid[x, y].gameObject);
+                    Debug.Log($"Clearing block at {x}, {y}");
+            
+                    // Instead of destroying, disable the child
+                    _filledGrid[x, y].gameObject.SetActive(false);
                     _filledGrid[x, y] = null;
                 }
             }
         }
+
         
         private IEnumerator MoveRowDown(int y, int shiftAmount)
         {

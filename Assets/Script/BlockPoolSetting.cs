@@ -1,6 +1,5 @@
-using System;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
 
 namespace Script
 {
@@ -10,28 +9,57 @@ namespace Script
         public GameObject prefabs;
         public BlockType blockType;
 
-        public BlockController Create()
+        private List<Vector3> _childPositions;
+
+        public PoolHandler Create()
         {
             var go = Instantiate(prefabs);
-            go.TryGetComponent(out BlockController blockController);
-            blockController.blockPoolSetting = this;
+            var poolHandler = go.AddComponent<PoolHandler>();
+            poolHandler.blockPoolSetting = this;
             
-            return blockController;
+            _childPositions = new List<Vector3>();
+
+            foreach (Transform child in go.transform)
+            {
+                _childPositions.Add(child.localPosition);
+            }
+            
+            return poolHandler;
         }
         
-        public void OnGet(BlockController blockController)
+        public void OnGet(PoolHandler poolHandler)
         {
-            blockController.gameObject.SetActive(true);
+            poolHandler.gameObject.TryGetComponent(out BlockController blockController);
+            blockController.enabled = true;
+            
+            poolHandler.gameObject.SetActive(true);
+
+            var index = 0;
+    
+            // Reactivate all child blocks
+            foreach (Transform child in poolHandler.transform)
+            {
+                if (index < _childPositions.Count)
+                {
+                    child.localPosition = _childPositions[index]; // Reset position
+                }
+                child.gameObject.SetActive(true);
+                index++;
+            }
+    
+            poolHandler.transform.position = Vector3.zero;
+            poolHandler.transform.rotation = Quaternion.identity;
+        }
+
+        
+        public void OnRelease(PoolHandler poolHandler)
+        {
+            poolHandler.gameObject.SetActive(false);
         }
         
-        public void OnRelease(BlockController blockController)
+        public void OnDestroyPoolObject(PoolHandler poolHandler)
         {
-            blockController.gameObject.SetActive(false);
-        }
-        
-        public void OnDestroyPoolObject(BlockController blockController)
-        {
-            Destroy(blockController.gameObject);
+            Destroy(poolHandler.gameObject);
         }
     }
 }

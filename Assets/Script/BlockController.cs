@@ -12,19 +12,19 @@ namespace Script
         [Header("Rotation Settings")]
         [SerializeField] private Vector2 rotationPoint;
         
-        [Header("Pool Settings")]
-        public BlockPoolSetting blockPoolSetting;
-        
         private const int Speed = 1;
         private const float RotationAngle = 90f;
 
         private float _previousFallTime;
         private float _lockTime;
         private Coroutine _lockCoroutine;
+        
+        private bool _hasDropped = false;
 
         private void OnEnable()
         {
             _lockTime = fallTime;
+            _hasDropped = false;
         }
 
         private void Update()
@@ -137,18 +137,19 @@ namespace Script
             enabled = false; // Disable script
         }
 
-        
         private void HardDrop()
         {
+            if (_hasDropped) return;  // Prevent multiple executions
+            _hasDropped = true;
+
             while (GameGrid.Instance.IsInsideGrid(transform, Vector3.down))
             {
                 transform.position += Vector3.down * Speed;
             }
 
-            Bus<OnBlockReachBottomEvent>.Raise(new OnBlockReachBottomEvent( transform ));
+            Bus<OnBlockReachBottomEvent>.Raise(new OnBlockReachBottomEvent(transform));
             enabled = false; // Disable movement script
         }
-
         
         #endregion
 
