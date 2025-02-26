@@ -1,3 +1,4 @@
+using System.Collections;
 using Script.EventBus;
 using UnityEngine;
 
@@ -11,10 +12,20 @@ namespace Script
         [Header("Rotation Settings")]
         [SerializeField] private Vector2 rotationPoint;
         
+        [Header("Pool Settings")]
+        public BlockPoolSetting blockPoolSetting;
+        
         private const int Speed = 1;
         private const float RotationAngle = 90f;
 
         private float _previousFallTime;
+        private float _lockTime;
+        private Coroutine _lockCoroutine;
+
+        private void OnEnable()
+        {
+            _lockTime = fallTime;
+        }
 
         private void Update()
         {
@@ -69,7 +80,7 @@ namespace Script
         {
             int[] shiftOffsets = { 1, -1, 2, -2 }; // Prioritize small shifts first
 
-            foreach (int shift in shiftOffsets)
+            foreach (var shift in shiftOffsets)
             {
                 transform.position += new Vector3(shift, 0, 0); // Move left or right
 
@@ -105,16 +116,27 @@ namespace Script
             if (GameGrid.Instance.IsInsideGrid(transform, Vector3.down))
             {
                 transform.position += Vector3.down * Speed;
-                _previousFallTime = Time.time; // Update fall time **after successful move**
+                _previousFallTime = Time.time; 
+
+                if (_lockCoroutine == null) return;
+                StopCoroutine(_lockCoroutine);
+                _lockCoroutine = null;
             }
             else
             {
-                GameGrid.Instance.AddToGrid(transform);
-                enabled = false; // Disable script
-                
-                Bus<OnBlockReachBottomEvent>.Raise(new OnBlockReachBottomEvent());
+                //Wait for certain times before lock block in place
+                _lockCoroutine ??= StartCoroutine(LockBlockAfterDelay());
             }
         }
+        
+        private IEnumerator LockBlockAfterDelay()
+        {
+            yield return new WaitForSeconds(_lockTime); // Delay before locking
+
+            Bus<OnBlockReachBottomEvent>.Raise(new OnBlockReachBottomEvent(transform));
+            enabled = false; // Disable script
+        }
+
         
         private void HardDrop()
         {
@@ -123,14 +145,8 @@ namespace Script
                 transform.position += Vector3.down * Speed;
             }
 
-            // Once the block can no longer move, lock it in place
-            GameGrid.Instance.AddToGrid(transform);
+            Bus<OnBlockReachBottomEvent>.Raise(new OnBlockReachBottomEvent( transform ));
             enabled = false; // Disable movement script
-
-            // Raise event to notify the system that block has reached the bottom
-            Bus<OnBlockReachBottomEvent>.Raise(new OnBlockReachBottomEvent());
-
-            Debug.Log("Hard Drop Completed");
         }
 
         

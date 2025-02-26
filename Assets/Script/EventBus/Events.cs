@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace Script.EventBus
 {
     public interface IEvent
@@ -6,6 +8,16 @@ namespace Script.EventBus
     }
     
     public struct OnBlockReachBottomEvent: IEvent
+    {
+        public Transform transform { get; }
+        
+        public OnBlockReachBottomEvent(Transform transform)
+        {
+            this.transform = transform;
+        }
+    }
+
+    public struct OnDoneCheckingRow : IEvent
     {
         
     }

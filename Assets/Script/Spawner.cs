@@ -7,22 +7,24 @@ namespace Script
     public class Spawner : MonoBehaviour
     {
        [SerializeField] private GameObject[] blockPrefabs;
+
+       [SerializeField] private BlockPoolSetting test;
        
-       private EventBindings<OnBlockReachBottomEvent> _onBlockReachBottomEvent;
+       private EventBindings<OnDoneCheckingRow> _onDoneCheckingRow;
 
        private void Awake()
        {
-           _onBlockReachBottomEvent = new EventBindings<OnBlockReachBottomEvent>(SpawnBlock);
+           _onDoneCheckingRow = new EventBindings<OnDoneCheckingRow>(SpawnBlock);
        }
 
        private void OnEnable()
        {
-           Bus<OnBlockReachBottomEvent>.Register(_onBlockReachBottomEvent);
+           Bus<OnDoneCheckingRow>.Register(_onDoneCheckingRow);
        }
 
        private void OnDisable()
        {
-           Bus<OnBlockReachBottomEvent>.Unregister(_onBlockReachBottomEvent);
+           Bus<OnDoneCheckingRow>.Unregister(_onDoneCheckingRow);
        }
 
        private void Start()
@@ -30,9 +32,19 @@ namespace Script
            SpawnBlock();
        }
        
-         private void SpawnBlock()
-         {
-              Instantiate(blockPrefabs[Random.Range(0, blockPrefabs.Length)], transform.position, Quaternion.identity);
-         }
+       private void SpawnBlock()
+       {
+           if (GameGrid.Instance.IsPositionFilled(transform.position))
+           {
+               Debug.Log("Game Over!");
+               //TODO -> Add Game Over Event
+               return; // Stop spawning blocks
+           }
+
+           var go = BlockFactory.Spawn(test);
+           go.transform.position = transform.position;
+           //Instantiate(blockPrefabs[Random.Range(0, blockPrefabs.Length)], transform.position, Quaternion.identity);
+       }
+
     }
 }
