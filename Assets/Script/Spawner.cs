@@ -7,6 +7,7 @@ namespace Script
 {
     public class Spawner : MonoBehaviour
     {
+        [SerializeField] private Transform blockHolder;
         [SerializeField] private BlockPoolSetting[] blockPool;
         [SerializeField] private int previewCount = 3; // Number of previews
 
@@ -76,6 +77,7 @@ namespace Script
 
             // Spawn the block
             var go = BlockFactory.Spawn(nextBlock);
+            go.transform.SetParent(blockHolder);
             go.transform.position = transform.position;
 
             // Add a new random block to the queue
@@ -93,6 +95,7 @@ namespace Script
             }
             
             var go = BlockFactory.Spawn(blockType);
+            go.transform.SetParent(blockHolder);
             go.transform.position = transform.position;
         }
 

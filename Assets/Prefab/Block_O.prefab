@@ -400,6 +400,14 @@ PrefabInstance:
       propertyPath: blockType
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 5356586686530555074, guid: ef35b6add6a6ec54e9c9b46638c91b60, type: 3}
+      propertyPath: rotationPoint.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5356586686530555074, guid: ef35b6add6a6ec54e9c9b46638c91b60, type: 3}
+      propertyPath: rotationPoint.y
+      value: -0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 6215056003757215930, guid: ef35b6add6a6ec54e9c9b46638c91b60, type: 3}
       propertyPath: rotationPoint.x
       value: 0.5

@@ -46,4 +46,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fallTime: 1
   rotationPoint: {x: 0, y: 0}
-  gameGrid: {fileID: 0}
+  inputReader: {fileID: 11400000, guid: 83541642b4e8ac445802ec303c593d91, type: 2}
+  poolHandler: {fileID: 0}

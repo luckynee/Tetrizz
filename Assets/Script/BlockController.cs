@@ -12,6 +12,8 @@ namespace Script
         [Header("Rotation Settings")]
         [SerializeField] private Vector2 rotationPoint;
         
+        [SerializeField] private InputReader inputReader;
+        
         public PoolHandler poolHandler;
         
         private const int Speed = 1;
@@ -27,40 +29,55 @@ namespace Script
         {
             _lockTime = fallTime;
             _hasDropped = false;
+            
+            inputReader.HardDrop += HardDrop;
+            inputReader.LeftPressed += MoveLeft;
+            inputReader.RightPressed += MoveRight;
+            inputReader.DownPressed += MoveBlockDown;
+
         }
 
         private void Update()
         {
             //TODO -> Use new Input System ( CUSTOM INPUT )
-            if (Input.GetKeyDown(KeyCode.LeftArrow))
-            {
-                TryMove(Vector3.left);
-            }
-            else if (Input.GetKeyDown(KeyCode.RightArrow))
-            {
-                TryMove(Vector3.right);
-            }
-            else if(Input.GetKey(KeyCode.DownArrow))
-            {
-                MoveBlockDown(true);
-            }
             
-            if (Input.GetKeyDown(KeyCode.R))
-            {
-                TryRotate();
-            }
-
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                HardDrop();
-            }
-            
-            if(Input.GetKeyDown(KeyCode.C))
-            {
-                StorageManager.Instance.StoreBlock(poolHandler);
-            }
+            // if (Input.GetKeyDown(KeyCode.LeftArrow))
+            // {
+            //     TryMove(Vector3.left);
+            // }
+            // else if (Input.GetKeyDown(KeyCode.RightArrow))
+            // {
+            //     TryMove(Vector3.right);
+            // }
+            // else if(Input.GetKey(KeyCode.DownArrow))
+            // {
+            //     MoveBlockDown(true);
+            // }
+            //
+            // if (Input.GetKeyDown(KeyCode.R))
+            // {
+            //     TryRotate();
+            // }
+            //
+            // if (Input.GetKeyDown(KeyCode.Space))
+            // {
+            //     HardDrop();
+            // }
+            //
+            // if(Input.GetKeyDown(KeyCode.C))
+            // {
+            //     StorageManager.Instance.StoreBlock(poolHandler);
+            // }
 
             MoveBlockDown();
+        }
+        
+        private void OnDisable()
+        {
+            inputReader.HardDrop -= HardDrop;
+            inputReader.LeftPressed -= MoveLeft;
+            inputReader.RightPressed -= MoveRight;
+            inputReader.DownPressed -= MoveBlockDown;
         }
 
         #region Rotation
@@ -105,6 +122,17 @@ namespace Script
         #endregion
 
         #region Movement
+        
+        private void MoveLeft()
+        {
+            TryMove(Vector3.left);
+        }
+        
+        private void MoveRight()
+        {
+            TryMove(Vector3.right);
+        }
+        
         private void TryMove(Vector3 direction)
         {
             if (GameGrid.Instance.IsInsideGrid(transform, direction))
