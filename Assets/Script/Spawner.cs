@@ -7,6 +7,7 @@ namespace Script
 {
     public class Spawner : MonoBehaviour
     {
+        [SerializeField] private Transform currentBlockHolder;
         [SerializeField] private Transform blockHolder;
         [SerializeField] private BlockPoolSetting[] blockPool;
         [SerializeField] private int previewCount = 3; // Number of previews
@@ -15,11 +16,13 @@ namespace Script
         
         private EventBindings<OnDoneCheckingRow> _onDoneCheckingRow;
         private EventBindings<OnBlockStored> _onBlockStored;
+        private EventBindings<OnBlockReachBottomEvent> _onBlockReachBottomEvent;
 
         private void Awake()
         {
             _onDoneCheckingRow = new EventBindings<OnDoneCheckingRow>(SpawnRandomBlock);
             _onBlockStored = new EventBindings<OnBlockStored>(SpawnBlockAfterStored);
+            _onBlockReachBottomEvent = new EventBindings<OnBlockReachBottomEvent>(ChangeBlockParent);
             
             InitializeQueue();
         }
@@ -28,12 +31,14 @@ namespace Script
         {
             Bus<OnDoneCheckingRow>.Register(_onDoneCheckingRow);
             Bus<OnBlockStored>.Register(_onBlockStored);
+            Bus<OnBlockReachBottomEvent>.Register(_onBlockReachBottomEvent);
         }
 
         private void OnDisable()
         {
             Bus<OnDoneCheckingRow>.Unregister(_onDoneCheckingRow);
             Bus<OnBlockStored>.Unregister(_onBlockStored);
+            Bus<OnBlockReachBottomEvent>.Unregister(_onBlockReachBottomEvent);
         }
 
         private void Start()
@@ -48,8 +53,6 @@ namespace Script
             {
                 _upcomingBlocks.Enqueue(blockPool[Random.Range(0, blockPool.Length)]);
             }
-
-            UpdatePreviewUI(); // Update UI to reflect changes
         }
         
         private void SpawnBlockAfterStored(OnBlockStored evt)
@@ -77,13 +80,13 @@ namespace Script
 
             // Spawn the block
             var go = BlockFactory.Spawn(nextBlock);
-            go.transform.SetParent(blockHolder);
+            go.transform.SetParent(currentBlockHolder);
             go.transform.position = transform.position;
 
             // Add a new random block to the queue
             _upcomingBlocks.Enqueue(blockPool[Random.Range(0, blockPool.Length)]);
             
-            UpdatePreviewUI(); // Update the UI
+            Bus<OnBlockEnabled>.Raise(new OnBlockEnabled(go.blockPoolSetting.blockType, go.transform.position.x));
         }
 
         private void SpawnSpecificBlock(BlockPoolSetting blockType)
@@ -95,14 +98,16 @@ namespace Script
             }
             
             var go = BlockFactory.Spawn(blockType);
-            go.transform.SetParent(blockHolder);
+            go.transform.SetParent(currentBlockHolder);
             go.transform.position = transform.position;
+            
+            Bus<OnBlockEnabled>.Raise(new OnBlockEnabled(go.blockPoolSetting.blockType, go.transform.position.x));
+            
         }
 
-
-        private void UpdatePreviewUI()
+        private void ChangeBlockParent(OnBlockReachBottomEvent args)
         {
-            // TODO: Implement UI logic to display upcoming blocks
+            args.transform.SetParent(blockHolder);
         }
     }
 }

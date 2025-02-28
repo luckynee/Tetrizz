@@ -1,6 +1,7 @@
 using System.Collections;
 using Script.EventBus;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Script
 {
@@ -10,7 +11,7 @@ namespace Script
         [SerializeField] private float fallTime = 1f;
         
         [Header("Rotation Settings")]
-        [SerializeField] private Vector2 rotationPoint;
+        [SerializeField] private RotationPointData rotationPointData;
         
         [SerializeField] private InputReader inputReader;
         
@@ -24,6 +25,8 @@ namespace Script
         private Coroutine _lockCoroutine;
         
         private bool _hasDropped = false;
+        
+        private bool _isDownPressed = false;
 
         private void OnEnable()
         {
@@ -33,43 +36,15 @@ namespace Script
             inputReader.HardDrop += HardDrop;
             inputReader.LeftPressed += MoveLeft;
             inputReader.RightPressed += MoveRight;
-            inputReader.DownPressed += MoveBlockDown;
-
+            inputReader.DownPressed += DownPressed;
+            inputReader.RotatePressed += TryRotate;
+            inputReader.StorePressed += StoreThisBlock;
+            
         }
 
         private void Update()
         {
-            //TODO -> Use new Input System ( CUSTOM INPUT )
-            
-            // if (Input.GetKeyDown(KeyCode.LeftArrow))
-            // {
-            //     TryMove(Vector3.left);
-            // }
-            // else if (Input.GetKeyDown(KeyCode.RightArrow))
-            // {
-            //     TryMove(Vector3.right);
-            // }
-            // else if(Input.GetKey(KeyCode.DownArrow))
-            // {
-            //     MoveBlockDown(true);
-            // }
-            //
-            // if (Input.GetKeyDown(KeyCode.R))
-            // {
-            //     TryRotate();
-            // }
-            //
-            // if (Input.GetKeyDown(KeyCode.Space))
-            // {
-            //     HardDrop();
-            // }
-            //
-            // if(Input.GetKeyDown(KeyCode.C))
-            // {
-            //     StorageManager.Instance.StoreBlock(poolHandler);
-            // }
-
-            MoveBlockDown();
+            MoveBlockDown(_isDownPressed);
         }
         
         private void OnDisable()
@@ -78,26 +53,35 @@ namespace Script
             inputReader.LeftPressed -= MoveLeft;
             inputReader.RightPressed -= MoveRight;
             inputReader.DownPressed -= MoveBlockDown;
+            inputReader.RotatePressed -= TryRotate;
+            inputReader.StorePressed -= StoreThisBlock;
         }
 
         #region Rotation
         private void TryRotate()
         {
-            var worldRotationPoint = transform.TransformPoint(rotationPoint);
+            var worldRotationPoint = transform.TransformPoint(rotationPointData.rotationPoint);
 
             // Simulate rotation
             transform.RotateAround(worldRotationPoint, Vector3.back, RotationAngle);
 
             // Check if still inside grid
-            if (!GameGrid.Instance.IsInsideGrid(transform, Vector3.zero))
+
+            if (GameGrid.Instance.IsInsideGrid(transform, Vector3.zero))
             {
-                // Try adjusting position to fit inside the grid
-                if (!TryWallKick())
-                {
-                    // If no valid position found, undo rotation
-                    transform.RotateAround(worldRotationPoint, Vector3.back, -RotationAngle);
-                }
+                Bus<OnBlockRotated>.Raise(new OnBlockRotated(RotationAngle));
+                return;
             }
+            
+            // Try adjusting position to fit inside the grid
+            if (!TryWallKick())
+            {
+                // If no valid position found, undo rotation
+                transform.RotateAround(worldRotationPoint, Vector3.back, -RotationAngle);
+                //Bus<OnBlockRotated>.Raise(new OnBlockRotated(-RotationAngle)); //TODO -> Fix
+            }
+            
+            Bus<OnBlockMoved>.Raise(new OnBlockMoved(transform.position.x));
         }
         
         private bool TryWallKick()
@@ -121,7 +105,16 @@ namespace Script
         }
         #endregion
 
-        #region Movement
+        #region Event
+        private void StoreThisBlock()
+        {
+            StorageManager.Instance.StoreBlock(poolHandler);
+        }
+
+        private void DownPressed(bool isPressed)
+        {
+            _isDownPressed = isPressed;
+        }
         
         private void MoveLeft()
         {
@@ -132,12 +125,17 @@ namespace Script
         {
             TryMove(Vector3.right);
         }
+        #endregion
+
+        
+        #region Movement
         
         private void TryMove(Vector3 direction)
         {
             if (GameGrid.Instance.IsInsideGrid(transform, direction))
             {
                 transform.position += direction * Speed;
+                Bus<OnBlockMoved>.Raise(new OnBlockMoved(transform.position.x));
             }
         }
         
@@ -200,7 +198,7 @@ namespace Script
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.TransformPoint(rotationPoint), 0.1f);
+            Gizmos.DrawWireSphere(transform.TransformPoint(rotationPointData.rotationPoint), 0.1f);
         }
 
     }

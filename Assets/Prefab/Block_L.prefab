@@ -400,6 +400,10 @@ PrefabInstance:
       propertyPath: blockType
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 5356586686530555074, guid: ef35b6add6a6ec54e9c9b46638c91b60, type: 3}
+      propertyPath: rotationPointData
+      value: 
+      objectReference: {fileID: 11400000, guid: 52d9b92ab4e764649bc9de04e4ffb282, type: 2}
     - target: {fileID: 8706760085684440290, guid: ef35b6add6a6ec54e9c9b46638c91b60, type: 3}
       propertyPath: m_Name
       value: Block_L

@@ -11,11 +11,17 @@ namespace Script
         [SerializeField] private int width = 10;
         [SerializeField] private float cellSize = 1f; // Size of each cell
 
+        [SerializeField] private Transform ghostBlock;
+        [SerializeField] private Transform currentBlock;
+
         private Transform[,] _filledGrid;
 
         private EventBindings<OnBlockReachBottomEvent> _onBlockReachBottomEvent;
         
         public static GameGrid Instance;
+        
+        public int Width => width;
+        public int Height => height;
 
         private void Awake()
         {
@@ -78,7 +84,7 @@ namespace Script
                     return false;
                 }
                 
-                if (_filledGrid[roundX, roundY])
+                if (_filledGrid[roundX, roundY] && _filledGrid[roundX, roundY].parent != ghostBlock && _filledGrid[roundX, roundY].parent != currentBlock)
                 {
                     return false;
                 }

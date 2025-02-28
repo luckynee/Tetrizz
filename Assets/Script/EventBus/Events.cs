@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Script.EventBus
 {
@@ -27,6 +28,37 @@ namespace Script.EventBus
         public OnBlockStored(BlockPoolSetting currentBlock = null)
         {
             this.CurrentBlock = currentBlock;
+        }
+    }
+    
+    public struct OnBlockMoved:IEvent
+    {
+        public float xPosition;
+        public OnBlockMoved(float xPosition)
+        {
+            this.xPosition = xPosition;
+        }
+    }
+    
+    public struct OnBlockRotated : IEvent
+    {
+        public float RotationAngle;
+
+        public OnBlockRotated(float rotationAngle)
+        {
+            RotationAngle = rotationAngle;
+        }
+    }
+    
+    public struct OnBlockEnabled : IEvent
+    {
+        public BlockType blockType;
+        public float xPosition;
+        
+        public OnBlockEnabled(BlockType blockType, float xPosition)
+        {
+            this.blockType = blockType;
+            this.xPosition = xPosition;
         }
     }
 }

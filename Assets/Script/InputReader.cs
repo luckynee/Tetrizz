@@ -12,6 +12,10 @@ namespace Script
         public event UnityAction RightPressed = delegate { };
         public event UnityAction HardDrop = delegate { };
         
+        public event UnityAction RotatePressed = delegate { };
+        
+        public event UnityAction StorePressed = delegate { };
+        
         
         private InputActions _inputActions;
         
@@ -46,19 +50,27 @@ namespace Script
 
         public void OnRotate(InputAction.CallbackContext context)
         {
-            
+            if(context.started)
+                RotatePressed.Invoke();
         }
         
         public void OnDown(InputAction.CallbackContext context)
         {
             //TODO -> Fix this 
+            if (context.performed)
+            {
+                DownPressed.Invoke(true);
+            }
+            else if (context.canceled)
+            {
+                DownPressed.Invoke(false);
+            }
         }
-
-
 
         public void OnStore(InputAction.CallbackContext context)
         {
-            
+            if(context.performed)
+                StorePressed.Invoke();
         }
 
         public void OnHardDrop(InputAction.CallbackContext context)
