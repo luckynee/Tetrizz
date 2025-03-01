@@ -64,24 +64,17 @@ namespace Script
 
             // Simulate rotation
             transform.RotateAround(worldRotationPoint, Vector3.back, RotationAngle);
+            Bus<OnBlockRotated>.Raise(new OnBlockRotated(RotationAngle));
 
             // Check if still inside grid
-
-            if (GameGrid.Instance.IsInsideGrid(transform, Vector3.zero))
-            {
-                Bus<OnBlockRotated>.Raise(new OnBlockRotated(RotationAngle));
-                return;
-            }
+            if (GameGrid.Instance.IsInsideGrid(transform, Vector3.zero)) return;
             
             // Try adjusting position to fit inside the grid
-            if (!TryWallKick())
-            {
-                // If no valid position found, undo rotation
-                transform.RotateAround(worldRotationPoint, Vector3.back, -RotationAngle);
-                //Bus<OnBlockRotated>.Raise(new OnBlockRotated(-RotationAngle)); //TODO -> Fix
-            }
-            
-            Bus<OnBlockMoved>.Raise(new OnBlockMoved(transform.position.x));
+            if (TryWallKick()) return;
+            // If no valid position found, undo rotation
+            transform.RotateAround(worldRotationPoint, Vector3.back, -RotationAngle);
+            Bus<OnBlockRotated>.Raise(new OnBlockRotated(RotationAngle)); 
+
         }
         
         private bool TryWallKick()
@@ -91,7 +84,9 @@ namespace Script
             foreach (var shift in shiftOffsets)
             {
                 transform.position += new Vector3(shift, 0, 0); // Move left or right
-
+                
+                Bus<OnBlockMoved>.Raise(new OnBlockMoved(transform.position.x));
+                
                 if (GameGrid.Instance.IsInsideGrid(transform, Vector3.zero))
                 {
                     return true; // Found a valid position
@@ -99,8 +94,8 @@ namespace Script
 
                 // Undo movement if still out of bounds
                 transform.position -= new Vector3(shift, 0, 0);
+                Bus<OnBlockMoved>.Raise(new OnBlockMoved(transform.position.x));
             }
-
             return false; // No valid position found
         }
         #endregion

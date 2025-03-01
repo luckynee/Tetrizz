@@ -1,5 +1,7 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Script.EventBus;
 using UnityEngine;
 
@@ -48,6 +50,8 @@ namespace Script
             Bus<OnBlockReachBottomEvent>.Unregister(_onBlockReachBottomEvent);
         }
 
+        #region Grid Method
+        
         private void AddToGrid(OnBlockReachBottomEvent evt)
         {
             var pieceTransform = evt.transform;
@@ -61,16 +65,9 @@ namespace Script
             }
             
             ClearAndMoveRows();
-
-            StartCoroutine(WaitAfterClear());
-            Bus<OnDoneCheckingRow>.Raise(new OnDoneCheckingRow());
         }
 
-        private IEnumerator WaitAfterClear()
-        {
-            yield return new WaitForSeconds(0.1f);
-        }
-
+       
         public bool IsInsideGrid(Transform pieceTransform, Vector3 offset)
         {
             foreach (Transform child in pieceTransform)
@@ -91,7 +88,30 @@ namespace Script
             }
             return true;
         }
+        
+        public bool IsPositionFilled(Vector3 spawnPosition)
+        {
+            var roundX = Mathf.FloorToInt(spawnPosition.x);
+            var roundY = Mathf.FloorToInt(spawnPosition.y);
 
+            if (roundX < 0 || roundX >= width || roundY < 0 || roundY >= height)
+            {
+                return true; // Out of bounds = considered filled
+            }
+
+            return _filledGrid[roundX, roundY]; // Returns true if occupied
+        }
+
+        public int GetCurrentBlockYPosition()
+        {
+            return (from Transform child in currentBlock.GetChild(0).transform select Mathf.FloorToInt(child.position.y)).Prepend(height).Min();
+        }
+        
+        #endregion
+
+
+        #region Row Checking
+        
         private bool IsRowFull(int y)
         {
             for (var x = 0; x < width; x++)
@@ -115,26 +135,24 @@ namespace Script
                 }
             }
         }
-
         
         private IEnumerator MoveRowDown(int y, int shiftAmount)
         {
             yield return new WaitForSeconds(0.5f);
             
-            for (int x = 0; x < width; x++)
+            for (var x = 0; x < width; x++)
             {
-                if (_filledGrid[x, y])
-                {
-                    _filledGrid[x, y - shiftAmount] = _filledGrid[x, y]; // Move block down
-                    _filledGrid[x, y - shiftAmount].position += Vector3.down * shiftAmount; // Update position
-                    _filledGrid[x, y] = null; // Clear old position
-                }
+                if (!_filledGrid[x, y]) continue;
+                _filledGrid[x, y - shiftAmount] = _filledGrid[x, y]; // Move block down
+                _filledGrid[x, y - shiftAmount].position += Vector3.down * shiftAmount; // Update position
+                _filledGrid[x, y] = null; // Clear old position
             }
         }
         
         private void ClearAndMoveRows()
         {
             var clearedRows = 0;
+            List<Coroutine> activeCoroutines = new List<Coroutine>();
 
             for (var y = 0; y < height; y++)
             {
@@ -145,25 +163,32 @@ namespace Script
                 }
                 else if (clearedRows > 0)
                 {
-                    StartCoroutine(MoveRowDown(y,clearedRows));
+                    Coroutine moveCoroutine = StartCoroutine(MoveRowDown(y, clearedRows));
+                    activeCoroutines.Add(moveCoroutine);
                 }
             }
-        }
-        
-        public bool IsPositionFilled(Vector3 spawnPosition)
-        {
-            var roundX = Mathf.FloorToInt(spawnPosition.x);
-            var roundY = Mathf.FloorToInt(spawnPosition.y);
 
-            if (roundX < 0 || roundX >= width || roundY < 0 || roundY >= height)
+            if (activeCoroutines.Count > 0)
             {
-                return true; // Out of bounds = considered filled
+                StartCoroutine(WaitForRowMovement(activeCoroutines));
+            }
+            else
+            {
+                Bus<OnDoneCheckingRow>.Raise(new OnDoneCheckingRow());
+            }
+        }
+
+        private IEnumerator WaitForRowMovement(List<Coroutine> activeCoroutines)
+        {
+            foreach (var coroutine in activeCoroutines)
+            {
+                yield return coroutine; // Wait for each coroutine to finish
             }
 
-            return _filledGrid[roundX, roundY] != null; // Returns true if occupied
+            yield return new WaitForSeconds(0.1f);
+            Bus<OnDoneCheckingRow>.Raise(new OnDoneCheckingRow());
         }
-
-
+        #endregion
         
         private void OnDrawGizmos()
         {

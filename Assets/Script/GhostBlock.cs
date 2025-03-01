@@ -28,6 +28,9 @@ namespace Script
         private Vector2 _defaultPosition;
         private float _defaultRotation;
 
+        private Transform _farLeftChild;
+        private Transform _farRightChild;
+
         private void Awake()
         {
             _onBlockMovedEvent = new EventBindings<OnBlockMoved>(UpdateGhostBlockPosition);
@@ -63,14 +66,35 @@ namespace Script
             Bus<OnBlockReachBottomEvent>.Unregister(_onBlockReachBottomEvent);
             Bus<OnBlockStored>.Unregister(_onBlockStoredEvent);
         }
+        
+        private void Update()
+        {
+            AdjustGhostPositionIfColliding();
+        }
 
+        #region event delegates
+
+        private void UpdateGhostBlockPosition(OnBlockMoved obj)
+        {
+            MoveGhostXPosition(obj.xPosition);
+            MoveGhostYPosition();
+        }
+        
+        private void UpdateGhostBlockRotation(OnBlockRotated obj)
+        {
+            TryRotate(obj.RotationAngle);
+            MoveGhostYPosition();
+        }
+        
         private void EnableGhostBlock(OnBlockEnabled args)
         {
             _currentBlockType = args.blockType;
             var block = _blockDictionary[_currentBlockType];
-
-            MoveGhostBlockX(args.xPosition);
-            MoveGhostBlockY();
+            
+            GetEdgeChild();
+            
+            MoveGhostYPosition();
+            
             block.SetActive(true);
         }
 
@@ -80,94 +104,122 @@ namespace Script
             block.SetActive(false);
             transform.position = _defaultPosition;
             transform.rotation = Quaternion.Euler(0, 0, _defaultRotation);
+            
+            _farLeftChild = null;
+            _farRightChild = null;
+        }
+        
+        #endregion
+
+        #region Movement & Rotation
+        
+        private void TryRotate(float rotationAngle)
+        {
+            var worldRotationPoint = transform.TransformPoint(_rotationPointDictionary[_currentBlockType].rotationPoint);
+            
+            transform.RotateAround(worldRotationPoint, Vector3.back, rotationAngle);
+            GetEdgeChild();
         }
 
-        private void UpdateGhostBlockPosition(OnBlockMoved args)
+        private void MoveGhostXPosition(float xPosition)
         {
-            MoveGhostBlockX(args.xPosition);
-            MoveGhostBlockY();
+            transform.position = new Vector3(xPosition, transform.position.y, transform.position.z);
         }
 
-        private void MoveGhostBlockY()
+        private void MoveGhostYPosition()
         {
-            // Move ghost block down until it collides or exceeds grid height
-            var moveDownAttempts = 0;
-            while (GameGrid.Instance.IsInsideGrid(_blockDictionary[_currentBlockType].gameObject.transform,
-                       Vector3.down) &&
-                   !IsCollidingWithBlock() &&
-                   moveDownAttempts < GameGrid.Instance.Height)
+            while (GameGrid.Instance.IsInsideGrid(_blockDictionary[_currentBlockType].transform, Vector3.down))
             {
                 transform.position += Vector3.down;
-                moveDownAttempts++;
             }
+            
+            IsAnyBlockAbove();
+            AdjustGhostPositionIfColliding();
+        }
 
+        #endregion
 
-            // Move up if colliding, with a safety limit
-            var moveUpAttempts = 0;
-            Debug.Log("Block above is Empty" + BlockAboveIsEmpty());
-            while (!BlockAboveIsEmpty() && moveUpAttempts < GameGrid.Instance.Height)
+        #region Validator
+
+        private void AdjustGhostPositionIfColliding()
+        {
+            if (!_blockDictionary.TryGetValue(_currentBlockType, out var value)) return;
+
+            // Check if any child of the ghost block is colliding
+            var isColliding = value.transform
+                .Cast<Transform>()
+                .Any(child => GameGrid.Instance.IsPositionFilled(child.position));
+
+            // If colliding, move up once
+            if (isColliding)
             {
                 transform.position += Vector3.up;
-                moveUpAttempts++;
             }
 
-            while (IsCollidingWithBlock() && moveUpAttempts < GameGrid.Instance.Height)
+            // Prevent going out of bounds (edge case handling)
+            if (transform.position.y >= GameGrid.Instance.Height)
             {
-                transform.position += Vector3.up;
-                moveUpAttempts++;
+                transform.position = new Vector3(transform.position.x, GameGrid.Instance.Height - 1, transform.position.z);
             }
         }
 
-        private bool IsCollidingWithBlock()
+        private void IsAnyBlockAbove()
         {
-            return (from Transform child in _blockDictionary[_currentBlockType].transform
-                    select new Vector2(child.position.x, child.position.y))
-                .Any(checkPos => GameGrid.Instance.IsPositionFilled(checkPos));
+            var farLeftX = Mathf.FloorToInt(_farLeftChild.position.x);
+            var farRightX = Mathf.FloorToInt(_farRightChild.position.x);
+            var currentBlockY = GameGrid.Instance.GetCurrentBlockYPosition();
+
+            var highestFilledY = float.MinValue; // Track the highest occupied block
+
+            for (var x = farLeftX; x <= farRightX; x++) // Check across the entire width
+            {
+                for (var y = transform.position.y + 0.5f; y <= currentBlockY; y += 1f) // Check upwards
+                {
+                    if (GameGrid.Instance.IsPositionFilled(new Vector3(x, y, 0)))
+                    {
+                        highestFilledY = Mathf.Max(highestFilledY, y); // Track the highest filled Y position
+                    }
+                }
+            }
+
+            // Move the ghost block just above the detected highest filled block, considering the 0.5 offset
+            if (Mathf.Approximately(highestFilledY, float.MinValue)) return;
+            transform.position = new Vector3(transform.position.x, highestFilledY + 1.5f, transform.position.z);
         }
 
 
-        private void MoveGhostBlockX(float xPosition)
+        private void GetEdgeChild()
         {
-            var newPos = transform.position;
-            newPos.x = xPosition;
+            _farLeftChild = null;
+            _farRightChild = null;
 
-            transform.position = newPos;
+            foreach (Transform child in _blockDictionary[_currentBlockType].transform)
+            {
+                if (!_farLeftChild || child.position.x < _farLeftChild.position.x)
+                {
+                    _farLeftChild = child;
+                }
+
+                if (!_farRightChild || child.position.x > _farRightChild.position.x)
+                {
+                    _farRightChild = child;
+                }
+            }
         }
 
-        private void UpdateGhostBlockRotation(OnBlockRotated args)
+
+        #endregion
+
+        private void OnDrawGizmos()
         {
-            var currentBlockRotationPoint = _rotationPointDictionary[_currentBlockType].rotationPoint;
-            var worldRotationPoint = transform.TransformPoint(currentBlockRotationPoint);
-            transform.RotateAround(worldRotationPoint, Vector3.back, args.RotationAngle);
-            MoveGhostBlockY();
+            if(!_farLeftChild || !_farRightChild) return;
+            
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(_farLeftChild.transform.position, .5f);
+            
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(_farRightChild.transform.position, .5f);
         }
-
-        private bool BlockAboveIsEmpty()
-        {
-            if (!_blockDictionary.TryGetValue(_currentBlockType, out var value)) return false;
-
-            // Find the farthest left and right blocks
-            var farLeft = value.transform.Cast<Transform>()
-                .OrderBy(child => child.position.x)
-                .FirstOrDefault();
-
-            var farRight = _blockDictionary[_currentBlockType].transform.Cast<Transform>()
-                .OrderByDescending(child => child.position.x)
-                .FirstOrDefault();
-
-            if (farLeft == null || farRight == null) return false;
-
-            // Convert world position to grid coordinates
-            var leftX = Mathf.FloorToInt(farLeft.position.x);
-            var rightX = Mathf.FloorToInt(farRight.position.x);
-            var startY = Mathf.FloorToInt(farLeft.position.y); // Same y for both blocks
-
-            // 🔹 Check if any block exists above (looping upwards)
-            return !Enumerable.Range(startY + 1, GameGrid.Instance.Height - startY - 1)
-                .Any(y => GameGrid.Instance.IsPositionFilled(new Vector3(leftX, y, 0)) ||
-                          GameGrid.Instance.IsPositionFilled(new Vector3(rightX, y, 0)));
-        }
-
     }
 
     [Serializable]
