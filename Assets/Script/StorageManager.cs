@@ -53,7 +53,7 @@ namespace Script
                 _storedBlock = currentBlockType;
                 
                 BlockFactory.ReturnToPool(currentBlock);
-                Bus<OnBlockStored>.Raise(new OnBlockStored(temp));
+                Bus<OnBlockStored>.Raise(new OnBlockStored(temp,currentBlockType));
             }
             else
             {
@@ -62,7 +62,7 @@ namespace Script
                 _hasBlockStored = true;
                 
                 BlockFactory.ReturnToPool(currentBlock);
-                Bus<OnBlockStored>.Raise(new OnBlockStored());
+                Bus<OnBlockStored>.Raise(new OnBlockStored(null,currentBlockType));
             }
             
             _usedStore = true;

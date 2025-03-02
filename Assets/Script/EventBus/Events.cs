@@ -25,9 +25,11 @@ namespace Script.EventBus
     public struct OnBlockStored : IEvent
     {
         public BlockPoolSetting CurrentBlock;
-        public OnBlockStored(BlockPoolSetting currentBlock = null)
+        public BlockPoolSetting BlockStored;
+        public OnBlockStored(BlockPoolSetting currentBlock = null, BlockPoolSetting blockStored = null)
         {
-            this.CurrentBlock = currentBlock;
+            CurrentBlock = currentBlock;
+            BlockStored = blockStored;
         }
     }
     
