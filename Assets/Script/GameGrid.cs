@@ -9,12 +9,17 @@ namespace Script
 {
     public class GameGrid : MonoBehaviour
     {
+        [Header("Grid Settings")]
         [SerializeField] private int height = 20;
         [SerializeField] private int width = 10;
         [SerializeField] private float cellSize = 1f; // Size of each cell
 
+        [Header("References")]
         [SerializeField] private Transform ghostBlock;
         [SerializeField] private Transform currentBlock;
+
+        [Header("Grid Visuals")]
+        [SerializeField] private GameObject gridPrefabs;
 
         private Transform[,] _filledGrid;
 
@@ -42,6 +47,7 @@ namespace Script
 
         private void OnEnable()
         {
+            GenerateGridVisuals();
             Bus<OnBlockReachBottomEvent>.Register(_onBlockReachBottomEvent);
         }
         
@@ -106,6 +112,21 @@ namespace Script
         {
             return (from Transform child in currentBlock.GetChild(0).transform select Mathf.FloorToInt(child.position.y)).Prepend(height).Min();
         }
+        
+        private void GenerateGridVisuals()
+        {
+            if (!gridPrefabs) return; 
+
+            for (var x = 0; x < width; x++)
+            {
+                for (var y = 0; y < height; y++)
+                {
+                    var position = transform.position + new Vector3(x * cellSize + 0.5f, y * cellSize + 0.5f, 0);
+                    var gridInstance = Instantiate(gridPrefabs, position, Quaternion.identity, transform);
+                }
+            }
+        }
+
         
         #endregion
 

@@ -24,12 +24,15 @@
 
             private Vector2 _rotationPoint;
             private BlockType _currentBlockType;
+            private GameObject _currentBlock;
 
             private Vector2 _defaultPosition;
             private float _defaultRotation;
+            private int _adjustTwice = 0;
 
             private Transform _farLeftChild;
             private Transform _farRightChild;
+            private Transform _lowestYChild;
 
             private void Awake()
             {
@@ -70,6 +73,9 @@
             private void Update()
             {
                 AdjustGhostPositionIfColliding();
+
+                if(!_currentBlock) return;
+                MoveGhostYPosition();
             }
 
             #region event delegates
@@ -89,24 +95,24 @@
             private void EnableGhostBlock(OnBlockEnabled args)
             {
                 _currentBlockType = args.blockType;
-                var block = _blockDictionary[_currentBlockType];
+                _currentBlock = _blockDictionary[_currentBlockType];
                 
                 GetEdgeChild();
                 
                 MoveGhostYPosition();
                 
-                block.SetActive(true);
+                _currentBlock.SetActive(true);
             }
 
             private void DisabledGhostBlock()
             {
-                var block = _blockDictionary[_currentBlockType];
-                block.SetActive(false);
+                _currentBlock.SetActive(false);
                 transform.position = _defaultPosition;
                 transform.rotation = Quaternion.Euler(0, 0, _defaultRotation);
                 
                 _farLeftChild = null;
                 _farRightChild = null;
+                _currentBlock = null;
             }
             
             #endregion
@@ -124,6 +130,7 @@
             private void MoveGhostXPosition(float xPosition)
             {
                 transform.position = new Vector3(xPosition, transform.position.y, transform.position.z);
+                _adjustTwice = 0;
             }
 
             private void MoveGhostYPosition()
@@ -137,9 +144,7 @@
                 {
                     transform.position += Vector3.down;
                 }
-                
                 IsAnyBlockAbove();
-                AdjustGhostPositionIfColliding();
             }
 
             #endregion
@@ -160,6 +165,7 @@
                 if (isColliding)
                 {
                     transform.position += Vector3.up;
+                    _adjustTwice++;
                 }
 
                 // Prevent going out of bounds (edge case handling)
@@ -172,14 +178,19 @@
             private void IsAnyBlockAbove()
             {
                 var farLeftX = Mathf.FloorToInt(_farLeftChild.position.x);
+                var farLeftY = Mathf.FloorToInt(_farLeftChild.position.y);
                 var farRightX = Mathf.FloorToInt(_farRightChild.position.x);
+                var farRightY = Mathf.FloorToInt(_farRightChild.position.y);
                 var currentBlockY = GameGrid.Instance.GetCurrentBlockYPosition();
 
                 var highestFilledY = float.MinValue; // Track the highest occupied block
 
-                for (var x = farLeftX; x <= farRightX; x++) // Check across the entire width
+                // Check upwards from farLeftChild's position
+                for (var x = farLeftX; x <= farRightX; x++) // Iterate across width
                 {
-                    for (var y = transform.position.y + 0.5f; y < currentBlockY; y += 1f) // Check upwards
+                    int startY = (x == farLeftX) ? farLeftY : farRightY; // Use farLeftY for farLeftX, farRightY for farRightX
+
+                    for (var y = startY + 1; y < currentBlockY; y++) // Check upwards from edge Y position
                     {
                         if (GameGrid.Instance.IsPositionFilled(new Vector3(x, y, 0)))
                         {
@@ -187,11 +198,12 @@
                         }
                     }
                 }
-                if (highestFilledY >= currentBlockY) return;
 
                 // Move the ghost block just above the detected highest filled block, considering the 0.5 offset
                 if (Mathf.Approximately(highestFilledY, float.MinValue)) return;
                 transform.position = new Vector3(transform.position.x, highestFilledY + 1.5f, transform.position.z);
+
+                _adjustTwice++;
             }
 
 
@@ -199,6 +211,7 @@
             {
                 _farLeftChild = null;
                 _farRightChild = null;
+                _lowestYChild = null;
 
                 foreach (Transform child in _blockDictionary[_currentBlockType].transform)
                 {
@@ -210,6 +223,11 @@
                     if (!_farRightChild || child.position.x > _farRightChild.position.x)
                     {
                         _farRightChild = child;
+                    }
+                    
+                    if (!_lowestYChild || child.position.y < _lowestYChild.position.y)
+                    {
+                        _lowestYChild = child;
                     }
                 }
             }
@@ -226,6 +244,9 @@
                 
                 Gizmos.color = Color.green;
                 Gizmos.DrawWireSphere(_farRightChild.transform.position, .5f);
+                
+                Gizmos.color = Color.yellow;
+                Gizmos.DrawWireSphere(_lowestYChild.transform.position, .5f);
             }
         }
 
