@@ -128,6 +128,11 @@
 
             private void MoveGhostYPosition()
             {
+                if (transform.position.y > GameGrid.Instance.GetCurrentBlockYPosition())
+                {
+                    transform.position = new Vector3(transform.position.x, GameGrid.Instance.GetCurrentBlockYPosition() + 0.5f, transform.position.z);
+                }
+                
                 while (GameGrid.Instance.IsInsideGrid(_blockDictionary[_currentBlockType].transform, Vector3.down))
                 {
                     transform.position += Vector3.down;
@@ -143,6 +148,7 @@
 
             private void AdjustGhostPositionIfColliding()
             {
+                
                 if (!_blockDictionary.TryGetValue(_currentBlockType, out var value)) return;
 
                 // Check if any child of the ghost block is colliding

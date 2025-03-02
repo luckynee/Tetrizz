@@ -73,7 +73,7 @@ namespace Script
             if (TryWallKick()) return;
             // If no valid position found, undo rotation
             transform.RotateAround(worldRotationPoint, Vector3.back, -RotationAngle);
-            Bus<OnBlockRotated>.Raise(new OnBlockRotated(RotationAngle)); 
+            Bus<OnBlockRotated>.Raise(new OnBlockRotated(-RotationAngle)); 
 
         }
         

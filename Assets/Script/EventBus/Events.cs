@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -61,6 +62,16 @@ namespace Script.EventBus
         {
             this.blockType = blockType;
             this.xPosition = xPosition;
+        }
+    }
+    
+    public struct OnQueueUpdated : IEvent
+    {
+        public Queue<BlockPoolSetting> UpcomingBlocks;
+        
+        public OnQueueUpdated(Queue<BlockPoolSetting> upcomingBlocks)
+        {
+            UpcomingBlocks = upcomingBlocks;
         }
     }
 }

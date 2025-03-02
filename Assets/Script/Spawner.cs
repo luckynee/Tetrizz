@@ -86,6 +86,8 @@ namespace Script
             // Add a new random block to the queue
             _upcomingBlocks.Enqueue(blockPool[Random.Range(0, blockPool.Length)]);
             
+            Bus<OnQueueUpdated>.Raise(new OnQueueUpdated(_upcomingBlocks));
+            
             Bus<OnBlockEnabled>.Raise(new OnBlockEnabled(go.blockPoolSetting.blockType, go.transform.position.x));
         }
 
