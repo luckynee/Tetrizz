@@ -133,15 +133,24 @@
 
             private void MoveGhostYPosition()
             {
-                if (transform.position.y > GameGrid.Instance.GetCurrentBlockYPosition())
-                {
-                    transform.position = new Vector3(transform.position.x, GameGrid.Instance.GetCurrentBlockYPosition() + 1.5f, transform.position.z);
-                }
-                
                 while (GameGrid.Instance.IsInsideGrid(_blockDictionary[_currentBlockType].transform, Vector3.down))
                 {
                     transform.position += Vector3.down;
                 }
+
+
+                var currentBlockY = GameGrid.Instance.CurrentBlock.Cast<Transform>()
+                    .Where(child => child.gameObject.activeSelf)
+                    .Select(child => child.position.y)
+                    .DefaultIfEmpty(float.MinValue) // Prevent error if no active children
+                    .Max(); // Get the highest Y position
+
+                if (transform.position.y > currentBlockY) 
+                {
+                    transform.position = new Vector3(transform.position.x, currentBlockY, transform.position.z);
+                    return;
+                }
+
                 IsAnyBlockAbove();
             }
 
@@ -167,7 +176,7 @@
 
                 // Prevent going out of bounds (edge case handling)
                 if (transform.position.y > GameGrid.Instance.Height)
-                {
+                {    
                     transform.position = new Vector3(transform.position.x, GameGrid.Instance.Height - 1, transform.position.z);
                 }
             }

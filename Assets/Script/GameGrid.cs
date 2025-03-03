@@ -26,7 +26,8 @@ namespace Script
         private EventBindings<OnBlockReachBottomEvent> _onBlockReachBottomEvent;
         
         public static GameGrid Instance;
-        
+
+        public Transform CurrentBlock => currentBlock;
         public int Width => width;
         public int Height => height;
 
