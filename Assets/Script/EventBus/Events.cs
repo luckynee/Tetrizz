@@ -19,9 +19,21 @@ namespace Script.EventBus
         }
     }
 
+    public struct OnDestroyRow : IEvent
+    {
+        public readonly List<int> DeletedRow;
+        
+        public OnDestroyRow(List<int> deletedRow)
+        {
+            DeletedRow = deletedRow ?? new List<int>(); // Ensures it is never null
+        }
+    }
+
     public struct OnDoneCheckingRow : IEvent
     {
+        
     }
+
     
     public struct OnBlockStored : IEvent
     {

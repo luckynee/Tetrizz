@@ -173,24 +173,27 @@ namespace Script
         private void ClearAndMoveRows()
         {
             var clearedRows = 0;
-            List<Coroutine> activeCoroutines = new List<Coroutine>();
+            var activeCoroutines = new List<Coroutine>();
+            var deletedRows = new List<int>(); // Store deleted row indices
 
             for (var y = 0; y < height; y++)
             {
                 if (IsRowFull(y))
                 {
                     ClearRow(y);
+                    deletedRows.Add(y); // Store deleted row index
                     clearedRows++;
                 }
                 else if (clearedRows > 0)
                 {
-                    Coroutine moveCoroutine = StartCoroutine(MoveRowDown(y, clearedRows));
+                    var moveCoroutine = StartCoroutine(MoveRowDown(y, clearedRows));
                     activeCoroutines.Add(moveCoroutine);
                 }
             }
 
             if (activeCoroutines.Count > 0)
             {
+                Bus<OnDestroyRow>.Raise(new OnDestroyRow(deletedRows));
                 StartCoroutine(WaitForRowMovement(activeCoroutines));
             }
             else
