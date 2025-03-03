@@ -159,7 +159,7 @@ namespace Script
         
         private IEnumerator MoveRowDown(int y, int shiftAmount)
         {
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.3f);
             
             for (var x = 0; x < width; x++)
             {

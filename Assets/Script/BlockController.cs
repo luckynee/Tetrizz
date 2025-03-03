@@ -14,7 +14,9 @@ namespace Script
         
         [Header("References")]
         [SerializeField] private InputReader inputReader;
-        
+
+        [SerializeField] private ParticleSystem particle;
+
         public PoolHandler poolHandler;
         
         private const int Speed = 1;
@@ -65,7 +67,8 @@ namespace Script
             // Simulate rotation
             transform.RotateAround(worldRotationPoint, Vector3.back, RotationAngle);
             Bus<OnBlockRotated>.Raise(new OnBlockRotated(RotationAngle));
-
+            
+           
             // Check if still inside grid
             if (GameGrid.Instance.IsInsideGrid(transform, Vector3.zero)) return;
             
@@ -73,7 +76,9 @@ namespace Script
             if (TryWallKick()) return;
             // If no valid position found, undo rotation
             transform.RotateAround(worldRotationPoint, Vector3.back, -RotationAngle);
+            
             Bus<OnBlockRotated>.Raise(new OnBlockRotated(-RotationAngle)); 
+            
 
         }
         
@@ -139,7 +144,7 @@ namespace Script
             var fallSpeed = speedUp ? fallTime / 10 : fallTime;
     
             if (Time.time - _previousFallTime < fallSpeed) return; // Ensure enough time has passed
-
+            
             // Check if moving down is allowed before applying movement
             if (GameGrid.Instance.IsInsideGrid(transform, Vector3.down))
             {
@@ -171,6 +176,8 @@ namespace Script
         {
             if (_hasDropped) return;  // Prevent multiple executions
             _hasDropped = true;
+            
+            particle.Play();
     
             // Cancel any ongoing locking coroutine (prevent double event trigger)
             if (_lockCoroutine != null)

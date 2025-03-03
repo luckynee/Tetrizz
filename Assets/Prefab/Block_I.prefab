@@ -400,6 +400,50 @@ PrefabInstance:
       propertyPath: rotationPointData
       value: 
       objectReference: {fileID: 11400000, guid: c9f1ab982f0ebd345b43a52753e65708, type: 2}
+    - target: {fileID: 5457135479382879703, guid: ef35b6add6a6ec54e9c9b46638c91b60, type: 3}
+      propertyPath: lengthInSec
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5457135479382879703, guid: ef35b6add6a6ec54e9c9b46638c91b60, type: 3}
+      propertyPath: ShapeModule.type
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 5457135479382879703, guid: ef35b6add6a6ec54e9c9b46638c91b60, type: 3}
+      propertyPath: moveWithTransform
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5457135479382879703, guid: ef35b6add6a6ec54e9c9b46638c91b60, type: 3}
+      propertyPath: ShapeModule.m_Scale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5457135479382879703, guid: ef35b6add6a6ec54e9c9b46638c91b60, type: 3}
+      propertyPath: ShapeModule.m_Rotation.z
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 5457135479382879703, guid: ef35b6add6a6ec54e9c9b46638c91b60, type: 3}
+      propertyPath: ShapeModule.radiusThickness
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5457135479382879703, guid: ef35b6add6a6ec54e9c9b46638c91b60, type: 3}
+      propertyPath: InitialModule.startLifetime.scalar
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5457135479382879703, guid: ef35b6add6a6ec54e9c9b46638c91b60, type: 3}
+      propertyPath: ColorModule.gradient.maxGradient.key0.b
+      value: 0.9960785
+      objectReference: {fileID: 0}
+    - target: {fileID: 5457135479382879703, guid: ef35b6add6a6ec54e9c9b46638c91b60, type: 3}
+      propertyPath: ColorModule.gradient.maxGradient.key0.g
+      value: 0.60784316
+      objectReference: {fileID: 0}
+    - target: {fileID: 5457135479382879703, guid: ef35b6add6a6ec54e9c9b46638c91b60, type: 3}
+      propertyPath: ColorModule.gradient.maxGradient.key0.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5457135479382879703, guid: ef35b6add6a6ec54e9c9b46638c91b60, type: 3}
+      propertyPath: EmissionModule.m_Bursts.Array.data[0].repeatInterval
+      value: 0.01
+      objectReference: {fileID: 0}
     - target: {fileID: 6215056003757215930, guid: ef35b6add6a6ec54e9c9b46638c91b60, type: 3}
       propertyPath: rotationPoint.x
       value: -0.5

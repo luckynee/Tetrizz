@@ -404,6 +404,22 @@ PrefabInstance:
       propertyPath: rotationPointData
       value: 
       objectReference: {fileID: 11400000, guid: 11591d7e08adef442b643dec46531d0d, type: 2}
+    - target: {fileID: 5457135479382879703, guid: ef35b6add6a6ec54e9c9b46638c91b60, type: 3}
+      propertyPath: ShapeModule.m_Position.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5457135479382879703, guid: ef35b6add6a6ec54e9c9b46638c91b60, type: 3}
+      propertyPath: ColorModule.gradient.maxGradient.key0.b
+      value: 0.48235297
+      objectReference: {fileID: 0}
+    - target: {fileID: 5457135479382879703, guid: ef35b6add6a6ec54e9c9b46638c91b60, type: 3}
+      propertyPath: ColorModule.gradient.maxGradient.key0.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5457135479382879703, guid: ef35b6add6a6ec54e9c9b46638c91b60, type: 3}
+      propertyPath: ColorModule.gradient.maxGradient.key0.r
+      value: 0.9176471
+      objectReference: {fileID: 0}
     - target: {fileID: 8706760085684440290, guid: ef35b6add6a6ec54e9c9b46638c91b60, type: 3}
       propertyPath: m_Name
       value: Block_T

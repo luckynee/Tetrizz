@@ -26,11 +26,11 @@ namespace Script.Tweening
                 yield return new WaitForSeconds(0.03f);
                 
                 LeanTween.sequence()
-                    .append(() => LeanTween.rotateAround(child, Vector3.forward, 360f, 0.5f)
+                    .append(() => LeanTween.rotateAround(child, Vector3.forward, 360f, 0.3f)
                         .setEase(easeType))
-                    .append(() => LeanTween.scale(child, new Vector3(.5f, .5f, .5f), 0.5f)
+                    .append(() => LeanTween.scale(child, new Vector3(.5f, .5f, .5f), 0.3f)
                         .setEase(LeanTweenType.easeInBounce))
-                    .append(() => LeanTween.alpha(child, 0f, .5f)
+                    .append(() => LeanTween.alpha(child, 0f, .3f)
                         .setEase(easeType)
                         .setOnComplete(() =>
                         {
