@@ -1,7 +1,6 @@
 using System.Collections;
 using Script.EventBus;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Script
 {
@@ -13,6 +12,7 @@ namespace Script
         [Header("Rotation Settings")]
         [SerializeField] private RotationPointData rotationPointData;
         
+        [Header("References")]
         [SerializeField] private InputReader inputReader;
         
         public PoolHandler poolHandler;
@@ -171,7 +171,7 @@ namespace Script
         {
             if (_hasDropped) return;  // Prevent multiple executions
             _hasDropped = true;
-
+    
             // Cancel any ongoing locking coroutine (prevent double event trigger)
             if (_lockCoroutine != null)
             {

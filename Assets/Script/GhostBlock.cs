@@ -28,7 +28,6 @@
 
             private Vector2 _defaultPosition;
             private float _defaultRotation;
-            private int _adjustTwice = 0;
 
             private Transform _farLeftChild;
             private Transform _farRightChild;
@@ -130,14 +129,13 @@
             private void MoveGhostXPosition(float xPosition)
             {
                 transform.position = new Vector3(xPosition, transform.position.y, transform.position.z);
-                _adjustTwice = 0;
             }
 
             private void MoveGhostYPosition()
             {
                 if (transform.position.y > GameGrid.Instance.GetCurrentBlockYPosition())
                 {
-                    transform.position = new Vector3(transform.position.x, GameGrid.Instance.GetCurrentBlockYPosition() + 0.5f, transform.position.z);
+                    transform.position = new Vector3(transform.position.x, GameGrid.Instance.GetCurrentBlockYPosition() + 1.5f, transform.position.z);
                 }
                 
                 while (GameGrid.Instance.IsInsideGrid(_blockDictionary[_currentBlockType].transform, Vector3.down))
@@ -165,7 +163,6 @@
                 if (isColliding)
                 {
                     transform.position += Vector3.up;
-                    _adjustTwice++;
                 }
 
                 // Prevent going out of bounds (edge case handling)
@@ -202,8 +199,6 @@
                 // Move the ghost block just above the detected highest filled block, considering the 0.5 offset
                 if (Mathf.Approximately(highestFilledY, float.MinValue)) return;
                 transform.position = new Vector3(transform.position.x, highestFilledY + 1.5f, transform.position.z);
-
-                _adjustTwice++;
             }
 
 
