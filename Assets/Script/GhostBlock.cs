@@ -143,7 +143,7 @@
                     .DefaultIfEmpty(float.MinValue) // Prevent error if no active children
                     .Max(); // Get the highest Y position
 
-                if (transform.position.y > currentBlockY) 
+                if (transform.position.y >= currentBlockY) 
                 {
                     transform.position = new Vector3(transform.position.x, currentBlockY, transform.position.z);
                     return;

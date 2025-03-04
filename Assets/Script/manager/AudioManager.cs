@@ -1,5 +1,6 @@
 using Script.EventBus;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Script.manager
 {
@@ -8,6 +9,10 @@ namespace Script.manager
         [Header("References")]
         [SerializeField] private AudioSource bgmSource;
         [SerializeField] private AudioSource sfxSource;
+        
+        [Header("Scene")]
+        [SerializeField] private string mainMenuScene;
+        [SerializeField] private string inGameScene;
 
         [Header("BGM Audio Clip")] 
         [SerializeField] private AudioClip mainMenuBgm;
@@ -42,8 +47,10 @@ namespace Script.manager
             Bus<OnBlockRotated>.Register(_onBlockRotated);
             Bus<OnBlockReachBottomEvent>.Register(_onBlockLocked);
             Bus<OnDestroyRow>.Register(_onDestroyRow);
+            
+            SceneManager.activeSceneChanged += OnSceneChanged;
         }
-        
+
         private void OnDisable()
         {
             Bus<OnBlockMoved>.Unregister(_onBlockMoved);
@@ -51,7 +58,28 @@ namespace Script.manager
             Bus<OnBlockRotated>.Unregister(_onBlockRotated);
             Bus<OnBlockReachBottomEvent>.Unregister(_onBlockLocked);
             Bus<OnDestroyRow>.Unregister(_onDestroyRow);
+            
+            SceneManager.activeSceneChanged -= OnSceneChanged;
         }
+
+        #region BGM
+
+        private void OnSceneChanged(Scene arg0, Scene arg1)
+        {
+            Debug.Log("Scene Changed");
+            if (arg1.name == mainMenuScene)
+            {
+                bgmSource.clip = mainMenuBgm;
+                bgmSource.Play();
+            }
+            else if (arg1.name == inGameScene)
+            {
+                bgmSource.clip = inGameBgm;
+                bgmSource.Play();
+            }
+        }
+
+        #endregion
 
         #region SFX
 
