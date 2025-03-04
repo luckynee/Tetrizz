@@ -71,7 +71,6 @@
             
             private void Update()
             {
-                AdjustGhostPositionIfColliding();
 
                 if(!_currentBlock) return;
                 MoveGhostYPosition();
@@ -138,7 +137,6 @@
                     transform.position += Vector3.down;
                 }
 
-
                 var currentBlockY = GameGrid.Instance.CurrentBlock.Cast<Transform>()
                     .Where(child => child.gameObject.activeSelf)
                     .Select(child => child.position.y)
@@ -152,6 +150,8 @@
                 }
 
                 IsAnyBlockAbove();
+                AdjustGhostPositionIfColliding();
+
             }
 
             #endregion
@@ -194,7 +194,7 @@
                 // Check upwards from farLeftChild's position
                 for (var x = farLeftX; x <= farRightX; x++) // Iterate across width
                 {
-                    int startY = (x == farLeftX) ? farLeftY : farRightY; // Use farLeftY for farLeftX, farRightY for farRightX
+                    var startY = (x == farLeftX) ? farLeftY : farRightY; // Use farLeftY for farLeftX, farRightY for farRightX
 
                     for (var y = startY + 1; y < currentBlockY; y++) // Check upwards from edge Y position
                     {
