@@ -84,6 +84,7 @@ namespace Script.Visual.UI
             yield return new WaitForSecondsRealtime(0.5f);
             Bus<ChangingTimeToNormalSpeed>.Raise(new ChangingTimeToNormalSpeed());
             RunTimeScriptableObject.ResetAll();
+            SceneManager.LoadScene("MainMenu");
         }
         
         public void RestartBtnClicked()
