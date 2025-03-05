@@ -72,6 +72,7 @@ namespace Script
         {
             if (GameGrid.Instance.IsPositionFilled(transform.position))
             {
+                Bus<OnGameOver>.Raise(new OnGameOver());
                 Debug.Log("Game Over!");
                 return;
             }

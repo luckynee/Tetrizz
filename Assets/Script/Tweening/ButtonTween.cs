@@ -13,7 +13,7 @@ namespace Script.Tweening
             LeanTween.cancel(gameObject);
             
             // Start a new scale tween with a ping-pong loop (no need for ScaleToNormal)
-            _currentTween = LeanTween.scale(gameObject, new Vector3(1.3f, 1.3f, 1.3f), 0.1f);
+            _currentTween = LeanTween.scale(gameObject, new Vector3(1.3f, 1.3f, 1.3f), 0.1f).setIgnoreTimeScale(true);
             _currentTween.setOnComplete(SetScaleToNormal);
             
         }
@@ -21,7 +21,8 @@ namespace Script.Tweening
         private void SetScaleToNormal()
         {
             LeanTween.scale(gameObject, new Vector3(1f, 1f, 1f), 0.5f)
-                .setEase(easeType);
+                .setEase(easeType)
+                .setIgnoreTimeScale(true);
         }
     }
 }

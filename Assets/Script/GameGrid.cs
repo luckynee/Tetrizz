@@ -218,20 +218,20 @@ namespace Script
         private void OnDrawGizmos()
         {
             // Draw Grid Lines
-            Gizmos.color = Color.gray;
-            for (var x = 0; x <= width; x++)
-            {
-                var start = transform.position + new Vector3(x * cellSize, 0, 0);
-                var end = start + new Vector3(0, height * cellSize, 0);
-                Gizmos.DrawLine(start, end);
-            }
-
-            for (var y = 0; y <= height; y++)
-            {
-                var start = transform.position + new Vector3(0, y * cellSize, 0);
-                var end = start + new Vector3(width * cellSize, 0, 0);
-                Gizmos.DrawLine(start, end);
-            }
+            // Gizmos.color = Color.gray;
+            // for (var x = 0; x <= width; x++)
+            // {
+            //     var start = transform.position + new Vector3(x * cellSize, 0, 0);
+            //     var end = start + new Vector3(0, height * cellSize, 0);
+            //     Gizmos.DrawLine(start, end);
+            // }
+            //
+            // for (var y = 0; y <= height; y++)
+            // {
+            //     var start = transform.position + new Vector3(0, y * cellSize, 0);
+            //     var end = start + new Vector3(width * cellSize, 0, 0);
+            //     Gizmos.DrawLine(start, end);
+            // }
 
             // Draw Filled Blocks
             // for (int x = 0; x < width; x++)

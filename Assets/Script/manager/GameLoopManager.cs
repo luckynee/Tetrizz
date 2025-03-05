@@ -1,3 +1,4 @@
+using Script.EventBus;
 using Script.SharedData;
 using UnityEngine;
 
@@ -7,25 +8,47 @@ namespace Script.manager
     {
         [Header("Level Setting")]
         [SerializeField] private float maxSpeed = 5f; // Maximum speed multiplier
-        [SerializeField] private int linesPerLevel = 10; // Lines required per level
         
         [Header("References")]
         [SerializeField] private IntVariables level; // Current game level
         private const float BaseSpeed = 1f; // Default game speed
+        
+        private EventBindings<OnGameOver> _onGameOver;
+        private EventBindings<ChangingTimeToNormalSpeed> _changingTimeToNormalSpeed;
+
+        private void Awake()
+        {
+            _onGameOver = new EventBindings<OnGameOver>(OnGameOver);
+            _changingTimeToNormalSpeed = new EventBindings<ChangingTimeToNormalSpeed>(SetTimeBackToNormal);
+        }
 
         private void OnEnable()
         {
             level.OnValueChanged += OnLevelChanged;
+            Bus<OnGameOver>.Register(_onGameOver);
+            Bus<ChangingTimeToNormalSpeed>.Register(_changingTimeToNormalSpeed);
         }
 
         private void OnDisable()
         {
             level.OnValueChanged -= OnLevelChanged;
+            Bus<OnGameOver>.Unregister(_onGameOver);
+            Bus<ChangingTimeToNormalSpeed>.Unregister(_changingTimeToNormalSpeed);
         }
 
         private void Start()
         {
             UpdateGameSpeed(level.Value);
+        }
+
+        private void OnGameOver()
+        {
+            Time.timeScale = 0f;
+        }
+        
+        private void SetTimeBackToNormal()
+        {
+            Time.timeScale = BaseSpeed;
         }
 
         private void OnLevelChanged(int newLevel)

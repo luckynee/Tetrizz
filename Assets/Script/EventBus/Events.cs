@@ -86,4 +86,36 @@ namespace Script.EventBus
             UpcomingBlocks = upcomingBlocks;
         }
     }
+    
+    public struct OnGameOver : IEvent
+    {
+        
+    }
+    
+    public struct ShowGameOverPopUp : IEvent
+    {
+        public bool HasNewHighScore;
+        
+        public ShowGameOverPopUp(bool hasNewHighScore)
+        {
+            HasNewHighScore = hasNewHighScore;
+        }
+    }
+    
+    public struct OnSubmitNewHighScore : IEvent
+    {
+        public int NewHighScore;
+        public string Username;
+        
+        public OnSubmitNewHighScore(int newHighScore, string username)
+        {
+            NewHighScore = newHighScore;
+            Username = username;
+        }
+    }
+    
+    public struct ChangingTimeToNormalSpeed : IEvent
+    {
+        
+    }
 }
